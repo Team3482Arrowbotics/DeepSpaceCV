@@ -32,25 +32,22 @@ def partition(lst, low, high):
     lst[i + 1], lst[high] = lst[high], lst[i + 1]
     return i + 1
 
-
 def quick_sort(lst, low, high):
     if low < high:
         pi = partition(lst, low, high)
         quick_sort(lst, low, pi - 1)
         quick_sort(lst, pi + 1, high)
 
-
 def sort(list):
     quick_sort(list, 0, len(list) - 1)
     return list
 
-
-CONTOUR_MIN_AREA = 750
-MIN_ASPECT_RATIO = 0.5
-MAX_ASPECT_RATIO = 2
-BOX_RADIUS = 10
-IMAGE_WIDTH = 640
-IMAGE_HEIGHT = 480
+CONTOUR_MIN_AREA = 750 #200
+MIN_ASPECT_RATIO = 0.5 #0.1
+MAX_ASPECT_RATIO = 2 #1
+BOX_RADIUS = 10 #5
+IMAGE_WIDTH = 640 #320
+IMAGE_HEIGHT = 480 #240
 
 def contourfilter(contours, img):
     # This filters out noise based off of aspect ratio and area
@@ -76,7 +73,7 @@ def getcentervalues(contours):
     centerXavg = 0
     centerYavg = 0
     if len(contours) > 0:
-        while(i < len(contours)):
+        while (i < len(contours)):
             x, y, w, h = cv2.boundingRect(contours[i])
             centerX = x + int(w / 2)
             centerY = y + int(h / 2)
@@ -87,26 +84,57 @@ def getcentervalues(contours):
         centerYavg /= len(contours)
     return (centerXavg, centerYavg)
 
+def findPairs(contours):
+    pairs = []
 
+    for i in contours:
+        closets = None
+
+        for y in contours:
+            if cv2.boundingRect(i) == cv2.boundingRect(y):
+                continue
+            if closets == None:
+                closets = y
+                continue
+            if distanceTo(i, closets) < distanceTo(i, y):
+                closets = y
+
+        pairs.append(i)
+        pairs.append(closets)
+
+    return pairs
+
+def distanceTo(one, two):
+    x1, y1, w1, h1 = cv2.boundingRect(one)
+
+    x2, y2, w2, h2 = cv2.boundingRect(two)
+
+    centerOne = y1 + int(h1 / 2)
+    centerTwo = y2 + int(h2 / 2)
+
+    print ("Distance To - ", max(centerOne, centerTwo) - min(centerOne, centerTwo))
+    return max(centerOne, centerTwo) - min(centerOne, centerTwo)
 
 
 def redo():
     while (True):
-        x1 = 0
-        x2 = 0
-        y1 = 0
-        y2 = 0
+        # x1 = 0
+        # x2 = 0
+        # y1 = 0
+        # y2 = 0
         ret, capture = cam.read()
+        # capture = cv2.imread('2019VisionImages/CargoStraightDark90in.jpg', 1)
+
         hsl = cv2.cvtColor(capture, cv2.COLOR_BGR2HLS)
         thresh = cv2.inRange(hsl, (62, 71, 78), (180, 255, 255))
         im2, contours, hierarchy = cv2.findContours(thresh, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
 
         gudContours = contourfilter(contours, capture)
 
-        xavg, yavg = getcentervalues(gudContours)
+        xavg, yavg = getcentervalues(findPairs(gudContours))
 
-        print("xavg: %d" %xavg)
-        print("yavg: %d" %yavg)
+        print("xavg: %d" % xavg)
+        print("yavg: %d" % yavg)
 
         contoursNew = cv2.drawContours(capture, gudContours, -1, (240, 0, 0), 3)
         cv2.circle(contoursNew, (xavg, yavg), 5, (0, 255, 0))
