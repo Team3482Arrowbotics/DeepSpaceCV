@@ -16,6 +16,7 @@ h = 0
 area = 0
 xavg = 0
 
+#Comment
 
 # NetworkTables.initialize(server = 'roboRIO-3482-frc.local')
 # vision = NetworkTables.getTable("Vision")
