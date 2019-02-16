@@ -28,7 +28,7 @@
 import cv2
 import cscore as cs
 import numpy as np
-import socket 
+# import socket
 
 from networktables import NetworkTables
 
