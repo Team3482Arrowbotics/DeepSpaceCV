@@ -34,7 +34,7 @@ from networktables import NetworkTables
 
 cam = cv2.VideoCapture(0)
 cam2 = cv2.VideoCapture(1)
-
+# aiodliausjdashdiygzd
 x = 0
 y = 0
 xdist = 0
